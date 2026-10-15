@@ -1,0 +1,25 @@
+[33mcommit 09ef16ce5d04c37b732fb15908f749eaf61b48f1[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m)[m
+Author: Jihan0712 <christianryle.legaspi@gmail.com>
+Date:   Thu Oct 15 16:25:43 2026 +0800
+
+    Switch go-live guide to dashboard setup via GitHub
+    
+    Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
+
+[33mcommit 4d357cb90bc5bc46c1ad2048361ae4578395e759[m
+Author: Jihan0712 <christianryle.legaspi@gmail.com>
+Date:   Thu Oct 15 15:53:05 2026 +0800
+
+    Add INRL waitlist site, sign-up endpoint and Sheet script
+    
+    One-page waitlist built from the Figma "SIGNUP · EARLY ACCESS" design,
+    hosted on Cloudflare Pages at waitlist.inrl.co. Sign-ups go
+    form -> /api/join (Pages Function: validation, honeypot, Turnstile)
+    -> Google Apps Script (shared secret, lock, dedupe, literal-text cells)
+    -> "INRL Waitlist" Google Sheet.
+    
+    Includes vitest unit tests for the endpoint and Apps Script, Playwright
+    browser tests on desktop and mobile, PLAN.md (eng review and decisions)
+    and SETUP.md (go-live steps for Cloudflare, Google and Crazy Domains).
+    
+    Co-Authored-By: Claude Opus 5.5 <noreply@anthropic.com>
