@@ -101,15 +101,17 @@ describe("POST /api/join", () => {
   });
 
   it.each([
-    ["Apps Script refuses (wrong secret)", { sheet: { ok: false, error: "forbidden" } }],
-    ["Apps Script returns an HTML error page", { sheetText: "<html>Error</html>" }],
-    ["Apps Script times out", { sheetThrows: new DOMException("timed out", "TimeoutError") }],
-  ])("returns 502 unavailable when %s", async (_label, upstream) => {
+    ["Apps Script refuses (wrong secret)", { sheet: { ok: false, error: "forbidden" } }, "apps_script_forbidden"],
+    ["the Signups tab is missing", { sheet: { ok: false, error: "no_sheet" } }, "apps_script_no_sheet"],
+    ["Apps Script returns an HTML page", { sheetText: "<html>Sign in</html>" }, "apps_script_not_json_200"],
+    ["Apps Script times out", { sheetThrows: new DOMException("timed out", "TimeoutError") }, "apps_script_timeout"],
+    ["Apps Script can't be reached", { sheetThrows: new TypeError("fetch failed") }, "apps_script_unreachable"],
+  ])("returns 502 with a reason code when %s", async (_label, upstream, reason) => {
     mockUpstreams(upstream);
     const res = await onRequestPost({ request: post(validBody), env });
 
     expect(res.status).toBe(502);
-    expect(await res.json()).toEqual({ ok: false, error: "unavailable" });
+    expect(await res.json()).toEqual({ ok: false, error: "unavailable", reason });
   });
 
   it("returns 500 without calling anything when secrets are not configured", async () => {

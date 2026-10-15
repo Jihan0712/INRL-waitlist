@@ -152,6 +152,18 @@ Order matters here. Add the domain in Cloudflare first, then the DNS record, or 
 
 ## If something goes wrong
 
+**Find the reason code first.** In the browser press F12 → **Network** tab → submit the form → click the `join` request → **Response**. A failed save shows a `reason`:
+
+| `reason` | What it means | Fix |
+|---|---|---|
+| `apps_script_not_json_200` (or another number) | Google answered with a web page, not the script: usually the sign-in page | Apps Script → **Deploy → Manage deployments → Edit** → Who has access: **Anyone** → Deploy. Also check `APPS_SCRIPT_URL` is the `/exec` Web app URL (not the editor URL) |
+| `apps_script_forbidden` | Shared secret doesn't match | Make `SHEET_SHARED_SECRET` (Cloudflare) and `SHARED_SECRET` (Script properties) exactly equal, then **Retry deployment** |
+| `apps_script_no_sheet` | No tab called `Signups` | Rename the Sheet tab to exactly `Signups` |
+| `apps_script_busy` | Many sign-ups at the same moment | Try again; it clears by itself |
+| `apps_script_timeout` / `apps_script_unreachable` | Google didn't answer in 15 s | Try again; if it keeps happening, open the `/exec` URL in a browser to check it loads |
+| `missing` list on a 500 | Those Cloudflare settings aren't on this deployment | Add them (step 10), then **Retry deployment** |
+
+
 | Symptom | Likely cause | Fix |
 |---|---|---|
 | "Something went wrong" on submit | `APPS_SCRIPT_URL` or `SHEET_SHARED_SECRET` wrong or missing | Recheck step 10 values, then **Retry deployment** (end of step 10) |

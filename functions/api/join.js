@@ -51,9 +51,10 @@ export async function onRequestPost({ request, env }) {
     return json(400, { ok: false, error: "verification" });
   }
 
-  const saved = await forwardToSheet(env, values);
-  if (!saved) {
-    return json(502, { ok: false, error: "unavailable" });
+  const sheet = await forwardToSheet(env, values);
+  if (!sheet.ok) {
+    // `reason` is a short code (never a secret) so a failed sign-up can be diagnosed from the browser.
+    return json(502, { ok: false, error: "unavailable", reason: sheet.reason });
   }
   return json(200, { ok: true });
 }
@@ -137,17 +138,18 @@ async function forwardToSheet(env, values) {
     try {
       result = JSON.parse(text);
     } catch {
+      // Usually a Google sign-in or error page: the deployment isn't "Who has access: Anyone", or the URL is wrong.
       console.error("join: apps script returned non-JSON", res.status, text.slice(0, 200));
-      return false;
+      return { ok: false, reason: `apps_script_not_json_${res.status}` };
     }
     if (result.ok !== true) {
       console.error("join: apps script refused", result.error);
-      return false;
+      return { ok: false, reason: `apps_script_${String(result.error ?? "refused").replace(/[^a-z_]/gi, "").slice(0, 30)}` };
     }
-    return true;
+    return { ok: true };
   } catch (err) {
     console.error("join: apps script request failed", err);
-    return false;
+    return { ok: false, reason: err?.name === "TimeoutError" ? "apps_script_timeout" : "apps_script_unreachable" };
   }
 }
 
