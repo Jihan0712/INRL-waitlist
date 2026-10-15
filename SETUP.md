@@ -152,7 +152,7 @@ Order matters here. Add the domain in Cloudflare first, then the DNS record, or 
 
 ## If something goes wrong
 
-**Find the reason code first.** In the browser press F12 → **Network** tab → submit the form → click the `join` request → **Response**. A failed save shows a `reason`:
+**Find the reason code first.** In the browser press F12 → **Network** tab → submit the form → click the `join` request → **Response**. A failed save (status 500) shows a `reason`:
 
 | `reason` | What it means | Fix |
 |---|---|---|

@@ -1,7 +1,7 @@
 // POST /api/join: validate a waitlist sign-up, check Turnstile, forward it to the Apps Script that writes the Sheet.
 //
 //   body ─► size/JSON checks ─► honeypot? ─► validate ─► Turnstile ─► Apps Script ─► {ok:true}
-//              400/413          200 (drop)     400 fields   400 verif.   502 unavailable
+//              400/413          200 (drop)     400 fields   400 verif.   500 unavailable
 import { COUNTRY_NAMES } from "../../public/countries.js";
 
 const MAX_BODY_BYTES = 10_000;
@@ -54,7 +54,8 @@ export async function onRequestPost({ request, env }) {
   const sheet = await forwardToSheet(env, values);
   if (!sheet.ok) {
     // `reason` is a short code (never a secret) so a failed sign-up can be diagnosed from the browser.
-    return json(502, { ok: false, error: "unavailable", reason: sheet.reason });
+    // 500, not 502: Cloudflare swaps 502 responses for its own HTML error page, which hides the reason.
+    return json(500, { ok: false, error: "unavailable", reason: sheet.reason });
   }
   return json(200, { ok: true });
 }

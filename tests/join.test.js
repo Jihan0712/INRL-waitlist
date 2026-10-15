@@ -106,11 +106,11 @@ describe("POST /api/join", () => {
     ["Apps Script returns an HTML page", { sheetText: "<html>Sign in</html>" }, "apps_script_not_json_200"],
     ["Apps Script times out", { sheetThrows: new DOMException("timed out", "TimeoutError") }, "apps_script_timeout"],
     ["Apps Script can't be reached", { sheetThrows: new TypeError("fetch failed") }, "apps_script_unreachable"],
-  ])("returns 502 with a reason code when %s", async (_label, upstream, reason) => {
+  ])("returns 500 with a reason code when %s", async (_label, upstream, reason) => {
     mockUpstreams(upstream);
     const res = await onRequestPost({ request: post(validBody), env });
 
-    expect(res.status).toBe(502);
+    expect(res.status).toBe(500);
     expect(await res.json()).toEqual({ ok: false, error: "unavailable", reason });
   });
 

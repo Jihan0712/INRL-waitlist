@@ -49,7 +49,7 @@ test("an empty submit shows inline errors and sends nothing", async ({ page }) =
 
 test("a server failure keeps the values, re-enables the button, and a retry succeeds", async ({ page }) => {
   await mockJoin(page, (route, n) =>
-    n === 1 ? route.fulfill({ status: 502, json: { ok: false, error: "unavailable" } }) : route.fulfill({ json: { ok: true } }),
+    n === 1 ? route.fulfill({ status: 500, json: { ok: false, error: "unavailable", reason: "apps_script_forbidden" } }) : route.fulfill({ json: { ok: true } }),
   );
   await page.goto("/");
   await fillForm(page);
