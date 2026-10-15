@@ -7,7 +7,9 @@ const env = {
   SHEET_SHARED_SECRET: "sheet-secret",
 };
 
-function mockUpstreams({ turnstileCodes = ["invalid-input-response"], sheet = { ok: false, error: "bad_request" }, sheetText, sheetThrows } = {}) {
+const scriptSees = { ok: true, check: true, spreadsheet: "INRL Waitlist", tabs: ["Signups"], signupsTab: true };
+
+function mockUpstreams({ turnstileCodes = ["invalid-input-response"], sheet = scriptSees, sheetText, sheetThrows } = {}) {
   const calls = { sheet: [] };
   vi.stubGlobal("fetch", vi.fn(async (url, init) => {
     if (String(url).includes("turnstile")) return Response.json({ success: false, "error-codes": turnstileCodes });
@@ -27,15 +29,34 @@ async function check(overrides = {}, e = env) {
 afterEach(() => vi.unstubAllGlobals());
 
 describe("GET /api/health", () => {
-  it("passes when the Turnstile secret is valid and the shared secret matches, sending no email", async () => {
+  it("passes when the secrets match and the script sees a Signups tab, and shows what it sees", async () => {
     const calls = mockUpstreams();
     const res = await onRequestGet({ env });
     const body = await res.json();
 
     expect(res.status).toBe(200);
-    expect(body).toEqual({ ok: true, checks: { settings: "ok", turnstile_secret: "ok", apps_script: "ok" } });
+    expect(body).toEqual({
+      ok: true,
+      checks: {
+        settings: "ok",
+        turnstile_secret: "ok",
+        apps_script: "ok",
+        apps_script_sees: { spreadsheet: "INRL Waitlist", tabs: ["Signups"] },
+      },
+    });
     expect(calls.sheet[0].url).toBe("https://script.google.com/macros/s/test/exec");
-    expect(calls.sheet[0].body).toEqual({ secret: "sheet-secret", email: "" });
+    expect(calls.sheet[0].body).toEqual({ secret: "sheet-secret", action: "check", email: "" });
+  });
+
+  it.each([
+    ["a spreadsheet without a Signups tab", { ...scriptSees, spreadsheet: "Copy of INRL Waitlist", tabs: ["Sheet1"], signupsTab: false }, /"Copy of INRL Waitlist" has no "Signups" tab/],
+    ["a script not attached to any spreadsheet", { ok: true, check: true, spreadsheet: null, tabs: [], signupsTab: false }, /isn't attached to a spreadsheet/],
+    ["an older Code.gs that ignores the check", { ok: false, error: "bad_request" }, /^partly checked: shared secret matches/],
+  ])("fails and explains %s", async (_label, sheet, message) => {
+    const { status, body } = await check({ sheet });
+    expect(status).toBe(500);
+    expect(body.ok).toBe(false);
+    expect(body.checks.apps_script).toMatch(message);
   });
 
   it.each([

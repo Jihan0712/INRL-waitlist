@@ -3,8 +3,9 @@
 //
 //   settings ─► Turnstile secret valid? ─► Apps Script reachable + shared secret matches?
 //
-// The Apps Script check sends the real shared secret with no email. Code.gs checks the secret first:
-// a wrong secret answers "forbidden", a right one answers "bad_request" and stops before the Sheet.
+// The Apps Script check sends the real shared secret with action "check". Code.gs checks the secret first
+// (wrong = "forbidden"), then reports which spreadsheet and tabs it sees, without writing.
+// An older Code.gs ignores the action and answers "bad_request" (empty email): secret OK, tab unchecked.
 const TIMEOUT_MS = 15_000;
 const TURNSTILE_URL = "https://challenges.cloudflare.com/turnstile/v0/siteverify";
 const SETTINGS = ["TURNSTILE_SECRET", "APPS_SCRIPT_URL", "SHEET_SHARED_SECRET"];
@@ -15,9 +16,10 @@ export async function onRequestGet({ env }) {
   for (const name of missing) checks[name] = diagnoseMissing(env, name);
 
   if (env.TURNSTILE_SECRET) checks.turnstile_secret = await checkTurnstile(env.TURNSTILE_SECRET);
-  if (env.APPS_SCRIPT_URL && env.SHEET_SHARED_SECRET) checks.apps_script = await checkAppsScript(env);
+  if (env.APPS_SCRIPT_URL && env.SHEET_SHARED_SECRET) Object.assign(checks, await checkAppsScript(env));
 
-  const ok = Object.values(checks).every((v) => v === "ok");
+  // Only these are pass/fail; apps_script_sees and the per-setting explanations are information.
+  const ok = missing.length === 0 && ["settings", "turnstile_secret", "apps_script"].every((key) => checks[key] === "ok");
   return new Response(JSON.stringify({ ok, checks }, null, 2), {
     status: ok ? 200 : 500,
     headers: { "Content-Type": "application/json", "Cache-Control": "no-store" },
@@ -56,7 +58,7 @@ async function checkAppsScript(env) {
     const res = await fetch(env.APPS_SCRIPT_URL.trim(), {
       method: "POST",
       headers: { "Content-Type": "text/plain;charset=utf-8" },
-      body: JSON.stringify({ secret: env.SHEET_SHARED_SECRET, email: "" }),
+      body: JSON.stringify({ secret: env.SHEET_SHARED_SECRET, action: "check", email: "" }),
       redirect: "follow",
       signal: AbortSignal.timeout(TIMEOUT_MS),
     });
@@ -65,12 +67,24 @@ async function checkAppsScript(env) {
     try {
       result = JSON.parse(text);
     } catch {
-      return `wrong: got a web page (status ${res.status}), not the script; check the URL ends in /exec and access is Anyone`;
+      return { apps_script: `wrong: got a web page (status ${res.status}), not the script; check the URL ends in /exec and access is Anyone` };
     }
-    if (result.error === "bad_request") return "ok";
-    if (result.error === "forbidden") return "wrong: shared secret doesn't match SHARED_SECRET in Script properties";
-    return `unexpected reply: ${String(result.error ?? JSON.stringify(result)).slice(0, 60)}`;
+    if (result.check) {
+      const sees = { spreadsheet: result.spreadsheet, tabs: result.tabs };
+      if (!result.spreadsheet) {
+        return { apps_script: "wrong: the script isn't attached to a spreadsheet; create it from the Sheet via Extensions > Apps Script", apps_script_sees: sees };
+      }
+      if (!result.signupsTab) {
+        return { apps_script: `wrong: spreadsheet "${result.spreadsheet}" has no "Signups" tab; rename the tab, or the script is attached to a different spreadsheet`, apps_script_sees: sees };
+      }
+      return { apps_script: "ok", apps_script_sees: sees };
+    }
+    if (result.error === "bad_request") {
+      return { apps_script: "partly checked: shared secret matches, but the deployed Code.gs is an older version so the Signups tab can't be checked; paste the latest Code.gs and deploy a new version" };
+    }
+    if (result.error === "forbidden") return { apps_script: "wrong: shared secret doesn't match SHARED_SECRET in Script properties" };
+    return { apps_script: `unexpected reply: ${String(result.error ?? JSON.stringify(result)).slice(0, 60)}` };
   } catch (err) {
-    return err?.name === "TimeoutError" ? "timeout: Apps Script didn't answer in 15 s" : "unreachable: bad APPS_SCRIPT_URL or Google unreachable";
+    return { apps_script: err?.name === "TimeoutError" ? "timeout: Apps Script didn't answer in 15 s" : "unreachable: bad APPS_SCRIPT_URL or Google unreachable" };
   }
 }

@@ -6,7 +6,7 @@ import { describe, expect, it } from "vitest";
 const source = readFileSync(new URL("../apps-script/Code.gs", import.meta.url), "utf8");
 const SECRET = "s3cret-value";
 
-function loadScript({ rows = [], secret = SECRET, lockFree = true } = {}) {
+function loadScript({ rows = [], secret = SECRET, lockFree = true, tabName = "Signups", attached = true } = {}) {
   const state = { rows: rows.map((r) => [...r]), lockReleased: false };
   const sheet = {
     getLastRow: () => state.rows.length,
@@ -37,7 +37,16 @@ function loadScript({ rows = [], secret = SECRET, lockFree = true } = {}) {
     Date, // share the test realm's Date so instanceof checks work
     PropertiesService: { getScriptProperties: () => ({ getProperty: (k) => (k === "SHARED_SECRET" ? secret : null) }) },
     LockService: { getScriptLock: () => ({ tryLock: () => lockFree, releaseLock: () => { state.lockReleased = true; } }) },
-    SpreadsheetApp: { getActiveSpreadsheet: () => ({ getSheetByName: (n) => (n === "Signups" ? sheet : null) }) },
+    SpreadsheetApp: {
+      getActiveSpreadsheet: () =>
+        attached
+          ? {
+              getName: () => "INRL Waitlist",
+              getSheetByName: (n) => (n === tabName ? sheet : null),
+              getSheets: () => [{ getName: () => "Notes" }, Object.assign(sheet, { getName: () => tabName })],
+            }
+          : null,
+    },
     ContentService: {
       MimeType: { JSON: "json" },
       createTextOutput: (text) => ({ text, setMimeType() { return this; } }),
@@ -96,6 +105,40 @@ describe("Code.gs doPost", () => {
 
     expect(post(signup)).toEqual({ ok: false, error: "busy" });
     expect(state.rows).toHaveLength(1);
+  });
+
+  it.each([["signups"], ["Signups "], [" SIGNUPS"]])("finds the tab even when it's named %j", (tabName) => {
+    const { state, post } = loadScript({ rows: [HEADER], tabName });
+
+    expect(post(signup)).toEqual({ ok: true });
+    expect(state.rows).toHaveLength(2);
+  });
+
+  it("answers no_sheet when no tab is close to Signups", () => {
+    const { state, post } = loadScript({ rows: [HEADER], tabName: "Sheet1" });
+
+    expect(post(signup)).toEqual({ ok: false, error: "no_sheet" });
+    expect(state.rows).toHaveLength(1);
+  });
+
+  it("check action reports the spreadsheet and tabs without writing", () => {
+    const { state, post } = loadScript({ rows: [HEADER], tabName: "Sheet1" });
+
+    expect(post({ secret: SECRET, action: "check" })).toEqual({
+      ok: true, check: true, spreadsheet: "INRL Waitlist", tabs: ["Notes", "Sheet1"], signupsTab: false,
+    });
+    expect(state.rows).toHaveLength(1);
+    expect(state.lockReleased).toBe(false);
+  });
+
+  it("check action still requires the shared secret", () => {
+    const { post } = loadScript();
+    expect(post({ secret: "nope", action: "check" })).toEqual({ ok: false, error: "forbidden" });
+  });
+
+  it("check action reports a script that isn't attached to a spreadsheet", () => {
+    const { post } = loadScript({ attached: false });
+    expect(post({ secret: SECRET, action: "check" })).toMatchObject({ ok: true, check: true, spreadsheet: null, signupsTab: false });
   });
 
   it("rejects a body that isn't JSON", () => {

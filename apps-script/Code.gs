@@ -6,6 +6,9 @@
  *
  *   doPost ─► parse JSON ─► secret matches? ─► lock ─► email already listed? ─► append literal-text row
  *               bad_request     forbidden        busy     ok (duplicate)           ok
+ *
+ * {action: "check"} (used by /api/health) stops after the secret check and reports which spreadsheet
+ * and tabs this script sees, without writing anything.
  */
 
 var SHEET_NAME = 'Signups';
@@ -33,6 +36,8 @@ function handleSignup(payload) {
     return { ok: false, error: 'forbidden' };
   }
 
+  if (payload.action === 'check') return describeSpreadsheet();
+
   var email = String(payload.email || '').trim().toLowerCase();
   if (!email) return { ok: false, error: 'bad_request' };
 
@@ -41,7 +46,7 @@ function handleSignup(payload) {
     return { ok: false, error: 'busy' };
   }
   try {
-    var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET_NAME);
+    var sheet = findSignupsSheet(SpreadsheetApp.getActiveSpreadsheet());
     if (!sheet) return { ok: false, error: 'no_sheet' };
 
     var lastRow = sheet.getLastRow();
@@ -68,6 +73,26 @@ function handleSignup(payload) {
   } finally {
     lock.releaseLock();
   }
+}
+
+// Exact "Signups" first, then ignoring case and stray spaces ("signups ", " Signups").
+function findSignupsSheet(spreadsheet) {
+  if (!spreadsheet) return null;
+  var exact = spreadsheet.getSheetByName(SHEET_NAME);
+  if (exact) return exact;
+  var sheets = spreadsheet.getSheets();
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].getName().trim().toLowerCase() === SHEET_NAME.toLowerCase()) return sheets[i];
+  }
+  return null;
+}
+
+// Names only (spreadsheet title and tab names), so a wrong binding or tab can be spotted from /api/health.
+function describeSpreadsheet() {
+  var spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
+  if (!spreadsheet) return { ok: true, check: true, spreadsheet: null, tabs: [], signupsTab: false };
+  var tabs = spreadsheet.getSheets().map(function (sheet) { return sheet.getName(); });
+  return { ok: true, check: true, spreadsheet: spreadsheet.getName(), tabs: tabs, signupsTab: !!findSignupsSheet(spreadsheet) };
 }
 
 // Sheets treats values starting with = + - @ as formulas. A leading apostrophe stores them as plain text.
