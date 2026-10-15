@@ -12,6 +12,7 @@ const SETTINGS = ["TURNSTILE_SECRET", "APPS_SCRIPT_URL", "SHEET_SHARED_SECRET"];
 export async function onRequestGet({ env }) {
   const missing = SETTINGS.filter((name) => !env[name]);
   const checks = { settings: missing.length === 0 ? "ok" : `missing: ${missing.join(", ")}` };
+  for (const name of missing) checks[name] = diagnoseMissing(env, name);
 
   if (env.TURNSTILE_SECRET) checks.turnstile_secret = await checkTurnstile(env.TURNSTILE_SECRET);
   if (env.APPS_SCRIPT_URL && env.SHEET_SHARED_SECRET) checks.apps_script = await checkAppsScript(env);
@@ -21,6 +22,17 @@ export async function onRequestGet({ env }) {
     status: ok ? 200 : 500,
     headers: { "Content-Type": "application/json", "Cache-Control": "no-store" },
   });
+}
+
+// Explains why a setting is missing using names only: empty value, or a near-miss name (stray space, wrong case).
+function diagnoseMissing(env, name) {
+  if (name in env) return "present but empty: paste the value again";
+  const squash = (s) => s.replace(/[^a-z0-9]/gi, "").toUpperCase();
+  const lookalikes = Object.keys(env).filter((key) => squash(key) === squash(name));
+  if (lookalikes.length > 0) {
+    return `not found, but a similar name exists: ${lookalikes.map((k) => JSON.stringify(k)).join(", ")}; rename it to exactly "${name}"`;
+  }
+  return "not found on this deployment: add it for Production, then Retry deployment";
 }
 
 async function checkTurnstile(secret) {

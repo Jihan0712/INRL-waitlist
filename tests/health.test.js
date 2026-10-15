@@ -54,7 +54,25 @@ describe("GET /api/health", () => {
   it("names missing settings and skips the checks that need them", async () => {
     const { status, body } = await check({}, { TURNSTILE_SECRET: "t" });
     expect(status).toBe(500);
-    expect(body.checks).toEqual({ settings: "missing: APPS_SCRIPT_URL, SHEET_SHARED_SECRET", turnstile_secret: "ok" });
+    expect(body.checks).toEqual({
+      settings: "missing: APPS_SCRIPT_URL, SHEET_SHARED_SECRET",
+      APPS_SCRIPT_URL: expect.stringMatching(/not found/),
+      SHEET_SHARED_SECRET: expect.stringMatching(/not found/),
+      turnstile_secret: "ok",
+    });
+  });
+
+  it.each([
+    ["an empty value", { SHEET_SHARED_SECRET: "" }, /present but empty/],
+    ["a name with a trailing space", { "SHEET_SHARED_SECRET ": "x" }, /similar name exists: "SHEET_SHARED_SECRET "/],
+    ["a lower-case name", { sheet_shared_secret: "x" }, /similar name exists: "sheet_shared_secret"/],
+    ["no such setting at all", {}, /not found on this deployment/],
+  ])("explains a missing setting caused by %s", async (_label, extra, message) => {
+    const { SHEET_SHARED_SECRET, ...rest } = env;
+    const { body } = await check({}, { ...rest, ...extra });
+    expect(body.checks.settings).toBe("missing: SHEET_SHARED_SECRET");
+    expect(body.checks.SHEET_SHARED_SECRET).toMatch(message);
+    expect(JSON.stringify(body)).not.toContain('"x"');
   });
 
   it("never echoes a secret value", async () => {
