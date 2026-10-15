@@ -91,7 +91,8 @@ Don't use the dashboard's **Upload assets** (drag-and-drop) option. It skips the
    ```
 
 **B. Connect it in Cloudflare**
-1. Cloudflare dashboard → **Workers & Pages** → **Create** → **Pages** tab → **Connect to Git** (may be labelled "Import an existing Git repository").
+1. Cloudflare dashboard → **Workers & Pages** → **Create application**. That screen makes a **Worker** by default, which is the wrong type: you would end up with a `….workers.dev` address and a blank 404 site. Instead, click the small link at the bottom, **"Looking to deploy Pages? Get started"**, then **Import an existing Git repository** → **Get started**.
+   - If you already made a Worker by mistake, delete it first: open it → **Settings** → **Delete**.
 2. Connect your GitHub account. When GitHub asks which repositories to allow, choose **Only select repositories** → `inrl-waitlist`.
 3. Pick `inrl-waitlist` → **Begin setup**, and fill in:
    - Project name: `inrl-waitlist` (this becomes `inrl-waitlist.pages.dev`; if Cloudflare adds a suffix because the name is taken, use that address in steps 3 and 11)
@@ -101,6 +102,10 @@ Don't use the dashboard's **Upload assets** (drag-and-drop) option. It skips the
    - Build output directory: `public`
    - Root directory: leave **empty**
 4. **Save and Deploy**. The first deploy takes about a minute. The site is then live at `https://inrl-waitlist.pages.dev`. The form won't save sign-ups until steps 9 and 10 are done.
+5. Check that it worked:
+   - The address ends in **`.pages.dev`**, not `.workers.dev`.
+   - `https://inrl-waitlist.pages.dev` shows the waitlist page.
+   - `https://inrl-waitlist.pages.dev/api/join` opened in a browser shows **"Method Not Allowed"** (status 405). That means the sign-up function is deployed. If you see a plain 404 page instead, the function didn't deploy: re-check that the build output directory is `public` and that you used Git, not Upload assets.
 
 From now on, every `git push` to `main` redeploys the site automatically.
 The project's `wrangler.toml` also names `public` as the output folder. If Cloudflare shows a build setting as "managed by wrangler.toml", that's expected.
@@ -154,4 +159,5 @@ Order matters here. Add the domain in Cloudflare first, then the DNS record, or 
 | Rows never appear but no error shows | Apps Script deployed with access other than "Anyone" | Redo step 9.4 as a **new deployment**, then update the URL in step 10 |
 | "Verification failed" | Hostname missing from the Turnstile widget | Add the domain in step 3 |
 | waitlist.inrl.co shows error 522 | CNAME was added before the custom domain was set up in Pages | Do step 11.1, then wait |
+| The site address ends in `.workers.dev` and shows a 404 | A Worker was created instead of a Pages project | Delete the Worker and redo step 8B using the "Looking to deploy Pages?" link |
 | You edited Code.gs but nothing changed | Apps Script serves the old deployment | **Deploy → Manage deployments → Edit → Version: New version** |
