@@ -32,13 +32,36 @@ test("a valid sign-up swaps to the confirmation state and focuses its heading", 
   expect(requests[0]).toMatchObject({ firstName: "Ada", lastName: "Lovelace", country: "DK", email: "ada@example.com", company: "", source: "instagram" });
 });
 
+test("Philippines is the default country, and it is sent unless changed", async ({ page }) => {
+  const requests = await mockJoin(page, (route) => route.fulfill({ json: { ok: true } }));
+  await page.goto("/");
+  await expect(page.getByLabel("Country")).toHaveValue("PH");
+  await expect(page.locator("#country option:checked")).toHaveText("Philippines");
+
+  await page.getByLabel("First name").fill("Ada");
+  await page.getByLabel("Last name").fill("Lovelace");
+  await page.getByLabel("Email address").fill("ada@example.com");
+  await page.getByRole("button", { name: "Join the waitlist" }).click();
+  await expect(page.getByRole("heading", { name: "You're on the list." })).toBeVisible();
+  expect(requests[0].country).toBe("PH");
+});
+
+test("choosing the placeholder again asks for a country", async ({ page }) => {
+  const requests = await mockJoin(page, (route) => route.fulfill({ json: { ok: true } }));
+  await page.goto("/");
+  await page.getByLabel("Country").selectOption("");
+  await page.getByRole("button", { name: "Join the waitlist" }).click();
+  await expect(page.getByText("Choose your country.")).toBeVisible();
+  expect(requests).toHaveLength(0);
+});
+
 test("an empty submit shows inline errors and sends nothing", async ({ page }) => {
   const requests = await mockJoin(page, (route) => route.fulfill({ json: { ok: true } }));
   await page.goto("/");
   await page.getByRole("button", { name: "Join the waitlist" }).click();
 
   await expect(page.getByText("Enter your first name.")).toBeVisible();
-  await expect(page.getByText("Choose your country.")).toBeVisible();
+  await expect(page.getByText("Choose your country.")).toBeHidden(); // Philippines is preselected
   await expect(page.getByLabel("First name")).toBeFocused();
   await expect(page.getByLabel("Email address")).toHaveAttribute("aria-invalid", "true");
   expect(requests).toHaveLength(0);

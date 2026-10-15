@@ -3,6 +3,8 @@ import { COUNTRIES } from "./countries.js";
 // Longer than the server's 25 s wait for Apps Script, so the server's own error message wins.
 const REQUEST_TIMEOUT_MS = 35000;
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+// Preselected in the Country dropdown. Set to "" to make people choose.
+const DEFAULT_COUNTRY = "PH";
 
 const MESSAGES = {
   firstName: "Enter your first name.",
@@ -36,6 +38,7 @@ function fillCountries() {
     frag.append(new Option(name, code));
   }
   select.append(frag);
+  select.value = DEFAULT_COUNTRY;
 }
 
 function setUpAnnouncement() {
