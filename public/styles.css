@@ -29,6 +29,7 @@
 :root {
   --bg: #ffffff;
   --ink: #2a2f31;
+  --logo: #384143; /* from the logo SVG */
   --ink-soft: #5b6265;
   --line: #dde1e2;
   --field-border: #cbd1d3;
@@ -108,16 +109,14 @@ p { margin: 0; }
   color: var(--ink-soft);
 }
 
-/* Wordmark: text stand-in until the SVG is exported from Figma. */
+/* Wordmark: the INRL logo SVG, inlined with fill="currentColor" so one copy works on dark and light. */
 .wordmark {
-  display: inline-block;
-  font-family: var(--font-display);
-  font-weight: 600;
-  font-size: 22px;
-  letter-spacing: 0.08em;
-  text-decoration: none;
-  color: var(--ink);
+  display: inline-flex;
+  align-items: center;
+  line-height: 0;
+  color: var(--logo);
 }
+.wordmark__logo { display: block; width: auto; height: 22px; }
 .wordmark--light { color: #fff; }
 
 /* Buttons */
@@ -213,6 +212,7 @@ p { margin: 0; }
   background: linear-gradient(180deg, rgba(0, 0, 0, 0.35) 0%, rgba(0, 0, 0, 0) 30%, rgba(0, 0, 0, 0) 65%, rgba(0, 0, 0, 0.4) 100%);
 }
 .hero > .wordmark, .hero__cta { position: relative; }
+.hero > .wordmark { align-self: flex-start; }
 .hero__cta { width: 100%; }
 
 /* Manifesto */
@@ -326,6 +326,7 @@ p { margin: 0; }
 /* Desktop (S-01 / S-03) */
 @media (min-width: 1024px) {
   :root { --gutter: 64px; }
+  .wordmark__logo { height: 28px; }
 
   .hero { min-height: min(860px, 88svh); padding-top: 28px; padding-bottom: 40px; }
 
