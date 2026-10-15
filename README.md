@@ -18,8 +18,10 @@ npm run fonts        # copies self-hosted fonts into public/assets/fonts (alread
 npm test             # unit tests: the endpoint and the Apps Script
 npm run e2e          # browser tests, desktop + mobile (first time: npx playwright install chromium)
 npm run dev          # local site + function on http://localhost:8788 (needs .dev.vars, copy .dev.vars.example)
-npm run deploy       # deploy public/ and functions/ to Cloudflare Pages
 ```
+
+Deploys: Cloudflare Pages builds from the GitHub repo (SETUP step 8). Every push to `main` goes live.
+`npm run deploy` (wrangler) still works as a manual fallback.
 
 ## Before launch
 

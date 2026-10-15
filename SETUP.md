@@ -68,25 +68,42 @@ inrl.co is registered with **Crazy Domains**. Before anything else, check where 
 
 ## Part 2: After the code is built
 
-### 8. Create the Pages project and deploy
-In a terminal, inside this project folder:
+### 8. Create the Pages project in the Cloudflare dashboard
+You set this up by hand in the dashboard, and Cloudflare builds the site from a GitHub repository.
+Don't use the dashboard's **Upload assets** (drag-and-drop) option. It skips the `functions/` folder, so the form would look fine but no sign-up would ever be saved.
 
-0. First time only: run `npm install`. Then, in `public/index.html`, replace the Turnstile test key `1x00000000000000000000AA` with your **Site key** from step 3.
-1. Log in to Cloudflare:
+**A. Put the code on GitHub**
+1. In `public/index.html`, replace the Turnstile test key `1x00000000000000000000AA` with your **Site key** from step 3, then commit it:
    ```bash
-   npx wrangler login
+   git commit -am "Use production Turnstile site key"
    ```
-2. Create the project:
+2. Sign in to GitHub (or create a free account) and go to https://github.com/new.
+   - Repository name: `inrl-waitlist`
+   - Visibility: **Private**
+   - Leave "Add a README", ".gitignore" and "license" **off**. The project already has them.
+3. Push the code, replacing `YOUR-USERNAME`. First add GitHub as the remote:
    ```bash
-   npx wrangler pages project create inrl-waitlist --production-branch main
+   git remote add origin https://github.com/YOUR-USERNAME/inrl-waitlist.git
    ```
-3. Deploy the site:
+   Then push:
    ```bash
-   npm run deploy
+   git push -u origin main
    ```
 
-The site is now live at `https://inrl-waitlist.pages.dev`.
-Use wrangler, not the dashboard's drag-and-drop upload. Drag-and-drop does not include the `/api/join` function.
+**B. Connect it in Cloudflare**
+1. Cloudflare dashboard → **Workers & Pages** → **Create** → **Pages** tab → **Connect to Git** (may be labelled "Import an existing Git repository").
+2. Connect your GitHub account. When GitHub asks which repositories to allow, choose **Only select repositories** → `inrl-waitlist`.
+3. Pick `inrl-waitlist` → **Begin setup**, and fill in:
+   - Project name: `inrl-waitlist` (this becomes `inrl-waitlist.pages.dev`; if Cloudflare adds a suffix because the name is taken, use that address in steps 3 and 11)
+   - Production branch: `main`
+   - Framework preset: **None**
+   - Build command: leave **empty**
+   - Build output directory: `public`
+   - Root directory: leave **empty**
+4. **Save and Deploy**. The first deploy takes about a minute. The site is then live at `https://inrl-waitlist.pages.dev`. The form won't save sign-ups until steps 9 and 10 are done.
+
+From now on, every `git push` to `main` redeploys the site automatically.
+The project's `wrangler.toml` also names `public` as the output folder. If Cloudflare shows a build setting as "managed by wrangler.toml", that's expected.
 
 ### 9. Add the Apps Script to the Sheet
 1. In the Sheet: **Extensions → Apps Script**.
@@ -107,7 +124,7 @@ Go to Cloudflare dashboard → **Workers & Pages** → `inrl-waitlist` → **Set
 | `APPS_SCRIPT_URL` | Web app URL (step 9) |
 | `SHEET_SHARED_SECRET` | Shared secret (step 5) |
 
-Then run the step 8 deploy command again so the function picks up the secrets.
+Then go to the **Deployments** tab, open the **⋯** menu on the latest deployment and click **Retry deployment**, so the function picks up the secrets.
 
 ### 11. Connect waitlist.inrl.co
 Order matters here. Add the domain in Cloudflare first, then the DNS record, or the site shows an error.
@@ -133,7 +150,7 @@ Order matters here. Add the domain in Cloudflare first, then the DNS record, or 
 
 | Symptom | Likely cause | Fix |
 |---|---|---|
-| "Something went wrong" on submit | `APPS_SCRIPT_URL` or `SHEET_SHARED_SECRET` wrong or missing | Recheck step 10 values, then redeploy (step 8) |
+| "Something went wrong" on submit | `APPS_SCRIPT_URL` or `SHEET_SHARED_SECRET` wrong or missing | Recheck step 10 values, then **Retry deployment** (end of step 10) |
 | Rows never appear but no error shows | Apps Script deployed with access other than "Anyone" | Redo step 9.4 as a **new deployment**, then update the URL in step 10 |
 | "Verification failed" | Hostname missing from the Turnstile widget | Add the domain in step 3 |
 | waitlist.inrl.co shows error 522 | CNAME was added before the custom domain was set up in Pages | Do step 11.1, then wait |
