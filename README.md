@@ -25,7 +25,7 @@ Deploys: Cloudflare Pages builds from the GitHub repo (SETUP step 8). Every push
 
 ## Before launch
 
-- [ ] Replace the Turnstile **test** site key in `public/index.html` (`data-sitekey="1x00000000000000000000AA"`) with the real one (SETUP step 3).
+- [x] Real Turnstile site key is in `public/index.html`. `TURNSTILE_SECRET` in Cloudflare must be the matching real secret.
 - [ ] Add the confirmation photo as `public/assets/img/confirm-photo.jpg` (the night-street shot from Figma S-03). A grey block shows until then.
 - [ ] Large originals go in `source-assets/` (git-ignored). Never put files over 25 MB in `public/`: Pages rejects them and GitHub rejects files over 100 MB.
 - [ ] Swap the text "INRL" wordmark for the SVG from Figma (`.wordmark` in index.html).
