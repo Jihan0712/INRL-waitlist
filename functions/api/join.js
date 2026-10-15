@@ -127,7 +127,7 @@ async function verifyTurnstile(secret, token, ip) {
 async function forwardToSheet(env, values) {
   try {
     // Apps Script answers with a 302 to googleusercontent.com; fetch follows it.
-    const res = await fetch(env.APPS_SCRIPT_URL, {
+    const res = await fetch(env.APPS_SCRIPT_URL.trim(), {
       method: "POST",
       headers: { "Content-Type": "text/plain;charset=utf-8" },
       body: JSON.stringify({ secret: env.SHEET_SHARED_SECRET, ...values }),
