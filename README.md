@@ -26,8 +26,8 @@ Deploys: Cloudflare Pages builds from the GitHub repo (SETUP step 8). Every push
 ## Before launch
 
 - [ ] Replace the Turnstile **test** site key in `public/index.html` (`data-sitekey="1x00000000000000000000AA"`) with the real one (SETUP step 3).
-- [ ] Add photos to `public/assets/img/`: `hero-poster.jpg`, `form-photo.jpg`, `confirm-photo.jpg`. Grey blocks show until then.
-- [ ] Add the hero film as `public/assets/video/hero.mp4` (H.264, under 8 MB; Pages caps files at 25 MiB).
+- [ ] Add the confirmation photo as `public/assets/img/confirm-photo.jpg` (the night-street shot from Figma S-03). A grey block shows until then.
+- [ ] Large originals go in `source-assets/` (git-ignored). Never put files over 25 MB in `public/`: Pages rejects them and GitHub rejects files over 100 MB.
 - [ ] Swap the text "INRL" wordmark for the SVG from Figma (`.wordmark` in index.html).
 - [ ] Put the exact colour hex values in the `:root` tokens in `styles.css` (current ones are estimates).
 - [ ] Confirm the privacy policy URL (`https://inrl.co/privacy` is a guess) and the footer link targets (they all point to https://inrl.co for now).

@@ -194,6 +194,22 @@ p { margin: 0; }
   object-fit: cover;
 }
 .hero__video.is-missing { display: none; }
+/* The film has captions burned in. On narrow screens stack wordmark, full-width 16:9 film, button,
+   instead of cropping the frame (and the words) to a tall hero. */
+@media (max-width: 767px) {
+  .hero { min-height: 0; gap: 20px; background: #000; }
+  .hero > .wordmark { order: -1; }
+  .hero__video {
+    position: relative;
+    inset: auto;
+    width: calc(100% + 2 * var(--gutter));
+    max-width: none;
+    height: auto;
+    aspect-ratio: 16 / 9;
+    margin-inline: calc(-1 * var(--gutter));
+  }
+  .hero__shade { display: none; }
+}
 .hero__shade {
   position: absolute;
   inset: 0;

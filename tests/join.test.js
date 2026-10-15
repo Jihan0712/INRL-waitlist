@@ -117,6 +117,7 @@ describe("POST /api/join", () => {
     const res = await onRequestPost({ request: post(validBody), env: { ...env, APPS_SCRIPT_URL: "" } });
 
     expect(res.status).toBe(500);
+    expect(await res.json()).toEqual({ ok: false, error: "unavailable", missing: ["APPS_SCRIPT_URL"] });
     expect(calls.turnstile).toHaveLength(0);
   });
 

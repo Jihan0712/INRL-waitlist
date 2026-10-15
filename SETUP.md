@@ -108,7 +108,6 @@ Don't use the dashboard's **Upload assets** (drag-and-drop) option. It skips the
    - `https://inrl-waitlist.pages.dev/api/join` opened in a browser shows `{"ok":false,"error":"method_not_allowed"}`. That means the sign-up function is deployed. If you see the waitlist page or a "Page not found" page there instead, the function didn't deploy: re-check that the build output directory is `public` and that you used Git, not Upload assets.
 
 From now on, every `git push` to `main` redeploys the site automatically.
-The project's `wrangler.toml` also names `public` as the output folder. If Cloudflare shows a build setting as "managed by wrangler.toml", that's expected.
 
 ### 9. Add the Apps Script to the Sheet
 1. In the Sheet: **Extensions → Apps Script**.

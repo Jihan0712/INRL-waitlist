@@ -14,9 +14,11 @@ const TURNSTILE_URL = "https://challenges.cloudflare.com/turnstile/v0/siteverify
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
 export async function onRequestPost({ request, env }) {
-  if (!env.TURNSTILE_SECRET || !env.APPS_SCRIPT_URL || !env.SHEET_SHARED_SECRET) {
-    console.error("join: missing TURNSTILE_SECRET, APPS_SCRIPT_URL or SHEET_SHARED_SECRET");
-    return json(500, { ok: false, error: "unavailable" });
+  // Names only, never values, so a misconfigured deploy can be diagnosed from the response.
+  const missing = ["TURNSTILE_SECRET", "APPS_SCRIPT_URL", "SHEET_SHARED_SECRET"].filter((name) => !env[name]);
+  if (missing.length > 0) {
+    console.error("join: missing settings", missing.join(", "));
+    return json(500, { ok: false, error: "unavailable", missing });
   }
 
   const raw = await request.text();

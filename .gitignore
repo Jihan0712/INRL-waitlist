@@ -5,3 +5,4 @@ test-results/
 playwright-report/
 .gstack/
 .impeccable/hook.cache.json
+source-assets/

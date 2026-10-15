@@ -4,8 +4,8 @@
   "type": "module",
   "scripts": {
     "fonts": "node scripts/copy-fonts.mjs",
-    "dev": "wrangler pages dev",
-    "deploy": "wrangler pages deploy",
+    "dev": "wrangler pages dev public --compatibility-date=2025-09-01",
+    "deploy": "wrangler pages deploy public --project-name inrl-waitlist",
     "test": "vitest run",
     "e2e": "playwright test",
     "check": "npm test && npm run e2e"
