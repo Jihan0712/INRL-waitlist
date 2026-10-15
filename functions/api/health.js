@@ -6,7 +6,7 @@
 // The Apps Script check sends the real shared secret with action "check". Code.gs checks the secret first
 // (wrong = "forbidden"), then reports which spreadsheet and tabs it sees, without writing.
 // An older Code.gs ignores the action and answers "bad_request" (empty email): secret OK, tab unchecked.
-const TIMEOUT_MS = 15_000;
+const TIMEOUT_MS = 25_000;
 const TURNSTILE_URL = "https://challenges.cloudflare.com/turnstile/v0/siteverify";
 const SETTINGS = ["TURNSTILE_SECRET", "APPS_SCRIPT_URL", "SHEET_SHARED_SECRET"];
 
@@ -85,6 +85,6 @@ async function checkAppsScript(env) {
     if (result.error === "forbidden") return { apps_script: "wrong: shared secret doesn't match SHARED_SECRET in Script properties" };
     return { apps_script: `unexpected reply: ${String(result.error ?? JSON.stringify(result)).slice(0, 60)}` };
   } catch (err) {
-    return { apps_script: err?.name === "TimeoutError" ? "timeout: Apps Script didn't answer in 15 s" : "unreachable: bad APPS_SCRIPT_URL or Google unreachable" };
+    return { apps_script: err?.name === "TimeoutError" ? "timeout: Apps Script didn't answer in 25 s" : "unreachable: bad APPS_SCRIPT_URL or Google unreachable" };
   }
 }

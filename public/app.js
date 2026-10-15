@@ -1,6 +1,7 @@
 import { COUNTRIES } from "./countries.js";
 
-const REQUEST_TIMEOUT_MS = 20000;
+// Longer than the server's 25 s wait for Apps Script, so the server's own error message wins.
+const REQUEST_TIMEOUT_MS = 35000;
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
 const MESSAGES = {

@@ -160,7 +160,7 @@ Order matters here. Add the domain in Cloudflare first, then the DNS record, or 
 | `apps_script_forbidden` | Shared secret doesn't match | Make `SHEET_SHARED_SECRET` (Cloudflare) and `SHARED_SECRET` (Script properties) exactly equal, then **Retry deployment** |
 | `apps_script_no_sheet` | No tab called `Signups` | Rename the Sheet tab to exactly `Signups` |
 | `apps_script_busy` | Many sign-ups at the same moment | Try again; it clears by itself |
-| `apps_script_timeout` / `apps_script_unreachable` | Google didn't answer in 15 s | Try again; if it keeps happening, open the `/exec` URL in a browser to check it loads |
+| `apps_script_timeout` / `apps_script_unreachable` | Google didn't answer in 25 s | Try again; if it keeps happening, open the `/exec` URL in a browser to check it loads |
 | `missing` list on a 500 | Those Cloudflare settings aren't on this deployment | Add them (step 10), then **Retry deployment** |
 
 

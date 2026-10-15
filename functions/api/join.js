@@ -8,7 +8,8 @@ const MAX_BODY_BYTES = 10_000;
 const NAME_MAX = 80;
 const EMAIL_MAX = 254;
 const SOURCE_MAX = 60;
-const APPS_SCRIPT_TIMEOUT_MS = 15_000;
+// Apps Script cold starts that open the spreadsheet regularly take 10-15 s; leave headroom.
+const APPS_SCRIPT_TIMEOUT_MS = 25_000;
 const TURNSTILE_TIMEOUT_MS = 8_000;
 const TURNSTILE_URL = "https://challenges.cloudflare.com/turnstile/v0/siteverify";
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
