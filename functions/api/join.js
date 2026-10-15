@@ -56,6 +56,14 @@ export async function onRequestPost({ request, env }) {
   return json(200, { ok: true });
 }
 
+// A browser visit is a GET. Answer it here so it doesn't fall through to the static site.
+export function onRequestGet() {
+  return new Response(JSON.stringify({ ok: false, error: "method_not_allowed" }), {
+    status: 405,
+    headers: { "Content-Type": "application/json", "Cache-Control": "no-store", Allow: "POST" },
+  });
+}
+
 export function validate(body) {
   const fields = [];
   const firstName = cleanName(body.firstName);

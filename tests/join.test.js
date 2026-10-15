@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { onRequestPost, validate } from "../functions/api/join.js";
+import { onRequestGet, onRequestPost, validate } from "../functions/api/join.js";
 
 const env = {
   TURNSTILE_SECRET: "turnstile-secret",
@@ -130,6 +130,15 @@ describe("POST /api/join", () => {
 
     expect(res.status).toBe(status);
     expect(calls.sheet).toHaveLength(0);
+  });
+});
+
+describe("GET /api/join", () => {
+  it("answers 405 instead of falling through to the homepage", async () => {
+    const res = onRequestGet();
+    expect(res.status).toBe(405);
+    expect(res.headers.get("Allow")).toBe("POST");
+    expect(await res.json()).toEqual({ ok: false, error: "method_not_allowed" });
   });
 });
 
