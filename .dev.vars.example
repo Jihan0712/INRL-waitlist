@@ -1,0 +1,5 @@
+# Copy to .dev.vars for `npm run dev`. Never commit .dev.vars.
+# Turnstile's official test secret: always passes, pairs with the test site key in index.html.
+TURNSTILE_SECRET=1x0000000000000000000000000000000AA
+APPS_SCRIPT_URL=https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec
+SHEET_SHARED_SECRET=paste-the-secret-from-SETUP-step-5

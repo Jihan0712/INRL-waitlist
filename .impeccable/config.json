@@ -1,0 +1,14 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "overused-font",
+        "value": "roboto",
+        "createdAt": "2026-10-15T07:45:22.161Z",
+        "reason": "Brand spec: Figma 00 Signup page notes name Oxanium + Roboto as the INRL type ramp"
+      }
+    ]
+  }
+}

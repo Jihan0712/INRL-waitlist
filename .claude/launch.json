@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "waitlist-static",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["tests/serve.mjs"],
+      "port": 4173
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "name": "inrl-waitlist",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "fonts": "node scripts/copy-fonts.mjs",
+    "dev": "wrangler pages dev",
+    "deploy": "wrangler pages deploy",
+    "test": "vitest run",
+    "e2e": "playwright test",
+    "check": "npm test && npm run e2e"
+  },
+  "devDependencies": {
+    "@fontsource/oxanium": "^5.2.5",
+    "@fontsource/roboto": "^5.2.5",
+    "@playwright/test": "^1.55.0",
+    "vitest": "^3.2.4",
+    "wrangler": "^4.40.0"
+  }
+}

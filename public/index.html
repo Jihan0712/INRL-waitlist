@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>INRL | Join the waitlist</title>
+  <meta name="description" content="A T-shirt. A video you choose. Join the INRL waitlist and get first access to the first drop.">
+  <meta name="theme-color" content="#121918">
+  <meta property="og:title" content="INRL | Get first access">
+  <meta property="og:description" content="A T-shirt. A video you choose. Join the waitlist for the first drop.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://waitlist.inrl.co/">
+  <meta property="og:image" content="https://waitlist.inrl.co/assets/img/form-photo.jpg">
+  <link rel="preload" href="assets/fonts/oxanium-latin-500-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="assets/fonts/roboto-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="styles.css">
+  <script type="module" src="app.js"></script>
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+</head>
+<body data-state="form">
+  <a class="skip-link" href="#join">Skip to the sign-up form</a>
+
+  <div class="announcement" id="announcement">
+    <p>A T-shirt. A video you choose.</p>
+    <button class="announcement__close" type="button" aria-label="Dismiss announcement">
+      <svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true"><path d="M3 3l10 10M13 3L3 13" stroke="currentColor" stroke-width="1.5" fill="none"/></svg>
+    </button>
+  </div>
+
+  <!-- State 1: waitlist (S-01 / S-02) -->
+  <div class="view view--form" id="view-form">
+    <header class="hero">
+      <video class="hero__video" muted autoplay loop playsinline preload="metadata" poster="assets/img/hero-poster.jpg" aria-hidden="true">
+        <source src="assets/video/hero.mp4" type="video/mp4">
+      </video>
+      <div class="hero__shade" aria-hidden="true"></div>
+      <a class="wordmark wordmark--light" href="https://inrl.co" aria-label="INRL home">INRL</a>
+      <a class="btn btn--light hero__cta" href="#join" data-scroll-to-form>Join the waitlist</a>
+    </header>
+
+    <main>
+      <section class="manifesto container" aria-labelledby="manifesto-title">
+        <h1 class="display manifesto__title" id="manifesto-title">Culture moves.<br>What we wear should too.</h1>
+        <div class="manifesto__body">
+          <p class="eyebrow">Why we made InRL</p>
+          <div class="manifesto__copy">
+            <p>There's more than one side to each of us. What we love, make and care about changes as we do. We share so much of it online. What if it could start conversations in real life?</p>
+            <p>So we made InRL: clothing that brings your digital content into the real world. Choose what you share, change it when you want, and let people discover sides of you they might not see otherwise.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="join container" id="join" aria-labelledby="join-title">
+        <figure class="join__media media">
+          <img src="assets/img/form-photo.jpg" alt="Someone films the print on an INRL T-shirt with their phone, and the video plays on screen." width="1348" height="1230" loading="lazy" decoding="async">
+        </figure>
+
+        <div class="join__panel">
+          <h2 class="display join__title" id="join-title">Get first access.</h2>
+          <p class="join__lede">Our first drop is coming soon. Join the list and we'll email you when it's ready.</p>
+
+          <form class="form" id="waitlist-form" novalidate>
+            <div class="form__row">
+              <div class="field">
+                <label for="firstName">First name</label>
+                <input id="firstName" name="firstName" type="text" autocomplete="given-name" placeholder="First name" maxlength="80" required aria-describedby="firstName-error">
+                <p class="field__error" id="firstName-error" hidden></p>
+              </div>
+              <div class="field">
+                <label for="lastName">Last name</label>
+                <input id="lastName" name="lastName" type="text" autocomplete="family-name" placeholder="Last name" maxlength="80" required aria-describedby="lastName-error">
+                <p class="field__error" id="lastName-error" hidden></p>
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="country">Country</label>
+              <select id="country" name="country" autocomplete="country" required aria-describedby="country-error">
+                <option value="">Select country</option>
+              </select>
+              <p class="field__error" id="country-error" hidden></p>
+            </div>
+
+            <div class="field">
+              <label for="email">Email address</label>
+              <input id="email" name="email" type="email" inputmode="email" autocomplete="email" placeholder="you@email.com" maxlength="254" required aria-describedby="email-error">
+              <p class="field__error" id="email-error" hidden></p>
+            </div>
+
+            <!-- Honeypot: hidden from people, bots fill it in. -->
+            <div class="hp" aria-hidden="true">
+              <label for="company">Company</label>
+              <input id="company" name="company" type="text" tabindex="-1" autocomplete="off">
+            </div>
+
+            <!-- Turnstile test site key (always passes). Replace with the real site key before launch: SETUP.md step 3. -->
+            <div class="cf-turnstile" data-sitekey="1x00000000000000000000AA" data-action="waitlist" data-size="flexible" data-appearance="interaction-only"></div>
+
+            <button class="btn btn--primary form__submit" type="submit">Join the waitlist</button>
+
+            <p class="form__status" id="form-status" role="alert" hidden></p>
+
+            <p class="form__consent">By joining you agree to get emails about INRL. Unsubscribe anytime. See our <a href="https://inrl.co/privacy">privacy policy</a>.</p>
+          </form>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- State 2: confirmation (S-03 / S-04) -->
+  <div class="view view--confirm" id="view-confirm" hidden>
+    <header class="topbar">
+      <div class="container topbar__inner">
+        <a class="wordmark" href="https://inrl.co" aria-label="INRL home">INRL</a>
+      </div>
+    </header>
+    <main class="confirm container">
+      <figure class="confirm__media media">
+        <img src="assets/img/confirm-photo.jpg" alt="A person in an INRL T-shirt at night while a friend films the print with their phone." width="1052" height="720" loading="lazy" decoding="async">
+      </figure>
+      <div class="confirm__copy">
+        <svg class="confirm__icon" viewBox="0 0 48 48" width="48" height="48" aria-hidden="true"><circle cx="24" cy="24" r="22" fill="none" stroke="currentColor" stroke-width="2"/><path d="M15 24.5l6 6 12-13" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <h1 class="display confirm__title" id="confirm-title" tabindex="-1">You're on the list.</h1>
+        <p class="confirm__lede">You're in. We'll email you when the first drop opens.</p>
+        <a class="btn btn--primary" href="https://inrl.co">Back to the site</a>
+      </div>
+    </main>
+  </div>
+
+  <footer class="footer">
+    <div class="container footer__grid">
+      <div class="footer__brand">
+        <a class="wordmark wordmark--muted" href="https://inrl.co" aria-label="INRL home">INRL</a>
+        <p>A T-shirt. A video you choose.</p>
+      </div>
+      <nav class="footer__col" aria-label="Shop">
+        <p class="eyebrow">Shop</p>
+        <a href="https://inrl.co">T-shirts</a>
+      </nav>
+      <nav class="footer__col" aria-label="Help">
+        <p class="eyebrow">Help</p>
+        <a href="https://inrl.co">Track your order</a>
+        <a href="https://inrl.co">FAQs</a>
+        <a href="mailto:contact@inrl.co">Contact us</a>
+        <a href="https://inrl.co">Returns</a>
+      </nav>
+      <div class="footer__col">
+        <p class="eyebrow">Contact</p>
+        <a href="mailto:contact@inrl.co">contact@inrl.co</a>
+      </div>
+    </div>
+    <div class="container footer__base">
+      <p>&copy; 2026 INRL</p>
+    </div>
+  </footer>
+</body>
+</html>
