@@ -26,9 +26,8 @@ Deploys: Cloudflare Pages builds from the GitHub repo (SETUP step 8). Every push
 ## Before launch
 
 - [x] Real Turnstile site key is in `public/index.html`. `TURNSTILE_SECRET` in Cloudflare must be the matching real secret.
-- [ ] Add the confirmation photo as `public/assets/img/confirm-photo.jpg` (the night-street shot from Figma S-03). A grey block shows until then.
+- [x] Confirmation photo added (original kept in `source-assets/`).
 - [ ] Large originals go in `source-assets/` (git-ignored). Never put files over 25 MB in `public/`: Pages rejects them and GitHub rejects files over 100 MB.
 - [ ] Swap the text "INRL" wordmark for the SVG from Figma (`.wordmark` in index.html).
 - [ ] Put the exact colour hex values in the `:root` tokens in `styles.css` (current ones are estimates).
-- [ ] Confirm the privacy policy URL (`https://inrl.co/privacy` is a guess) and the footer link targets (they all point to https://inrl.co for now).
-- [ ] Confirm the footer phone number from Figma if it should be shown (left out because the render was too blurry to read reliably).
+- [ ] Confirm the privacy policy URL (`https://inrl.co/privacy` is a guess) and where "Back to the site" should go (currently https://inrl.co).
